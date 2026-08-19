@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <h1>Quantum Physics Calculator</h1>
+    <p>Convert between quantum-related units with physical constants from SciPy.</p>
+
+    <div class="panel">
+        <h2>Conversion Form</h2>
+        <form method="post" class="convert-form">
+            <label for="value">Value</label>
+            <input
+                id="value"
+                name="value"
+                type="text"
+                value="{{ form_data.value }}"
+                placeholder="Examples: 2.5, 1e-3, 2*10^5, 1G"
+                required
+            >
+
+            <div class="row-label">
+                <label for="source_unit">From</label>
+            </div>
+            <div class="select-row">
+                <select id="source_unit" name="source_unit" required>
+                    {% for value, label in unit_options %}
+                    <option value="{{ value }}" {% if form_data.source_unit == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="row-label">
+                <label for="target_unit">To</label>
+            </div>
+            <div class="select-row">
+                <select id="target_unit" name="target_unit" required>
+                    {% for value, label in unit_options %}
+                    <option value="{{ value }}" {% if form_data.target_unit == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="button" id="swap-units" class="secondary">Swap From/To</button>
+
+            <button type="submit">Convert</button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <h2>Result</h2>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% elif result is not none %}
+        <p class="result">{{ "%.12g"|format(result) }} {{ result_unit }}</p>
+        {% else %}
+        <p class="hint">Submit a value to see the converted result.</p>
+        {% endif %}
+    </div>
+
+    <div class="panel">
+        <h2>Supported Units</h2>
+        <ul>
+            <li>Electron volts (eV)</li>
+            <li>Joules (J)</li>
+            <li>Wavelength (nm)</li>
+            <li>Tesla (T, via Bohr magneton)</li>
+            <li>Kelvin (K, via Boltzmann constant)</li>
+            <li>Frequency (Hz, via Planck constant h)</li>
+            <li>Angular frequency (rad/s, via reduced Planck constant ħ)</li>
+        </ul>
+    </div>
+
+    <div class="panel">
+        <h2>API</h2>
+        <p><code>POST /api/v1/convert</code></p>
+    </div>
+</section>
+
+<script>
+    const swapButton = document.getElementById("swap-units");
+    const sourceUnit = document.getElementById("source_unit");
+    const targetUnit = document.getElementById("target_unit");
+
+    swapButton.addEventListener("click", () => {
+        const sourceUnitValue = sourceUnit.value;
+        const targetUnitValue = targetUnit.value;
+
+        sourceUnit.value = targetUnitValue;
+        targetUnit.value = sourceUnitValue;
+    });
+</script>
+{% endblock %}
